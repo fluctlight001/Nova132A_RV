@@ -103,18 +103,18 @@ module ID (
     );
 
     wire [31:0] src1, src2;
-    assign src1 = ex_rf_we   & (ex_rf_waddr == rs1)   & (|rs1) ? ex_rf_wdata
+    assign src1 = sel_src1[1] ? 0
+                : sel_src1[0] ? pc
+                : ex_rf_we   & (ex_rf_waddr == rs1)   & (|rs1) ? ex_rf_wdata
                 : mem1_rf_we & (mem1_rf_waddr == rs1) & (|rs1) ? mem1_rf_wdata
                 : mem2_rf_we & (mem2_rf_waddr == rs1) & (|rs1) ? mem2_rf_wdata
                 : wb_rf_we   & (wb_rf_waddr == rs1)   & (|rs1) ? wb_rf_wdata
-                : sel_src1[0] ? pc
-                : sel_src1[1] ? 0
                 : rdata1;
-    assign src2 = ex_rf_we   & (ex_rf_waddr == rs2)   & (|rs2) ? ex_rf_wdata
+    assign src2 = sel_src2 ? imm
+                : ex_rf_we   & (ex_rf_waddr == rs2)   & (|rs2) ? ex_rf_wdata
                 : mem1_rf_we & (mem1_rf_waddr == rs2) & (|rs2) ? mem1_rf_wdata
                 : mem2_rf_we & (mem2_rf_waddr == rs2) & (|rs2) ? mem2_rf_wdata
                 : wb_rf_we   & (wb_rf_waddr == rs2)   & (|rs2) ? wb_rf_wdata
-                : sel_src2 ? imm
                 : rdata2;
 
     // assign csr_vec = {32'b0, csr_vec_l};
@@ -138,8 +138,8 @@ module ID (
         inst
     };
 
-    reg ex_load_buffer;
-    reg ex_csr_buffer;
+    reg ex_load_buffer, mem1_load_buffer;
+    reg ex_csr_buffer,  mem1_csr_buffer;
 
     always @ (posedge clk) begin
         if (!rst_n) begin
@@ -155,14 +155,34 @@ module ID (
             ex_csr_buffer <= sel_rf_res[2];
         end
     end
-    wire ex_is_load;
-    wire ex_is_csr;
+
+    always @ (posedge clk) begin
+        if (!rst_n) begin
+            mem1_load_buffer <= 1'b0;
+            mem1_csr_buffer <= 1'b0;
+        end
+        else if (stall[3]&(!stall[4]) | br_e) begin
+            mem1_load_buffer <= 1'b0;
+            mem1_csr_buffer <= 1'b0;
+        end
+        else if (!stall[3]) begin
+            mem1_load_buffer <= ex_load_buffer;
+            mem1_csr_buffer <= ex_csr_buffer;
+        end
+    end
+
+    wire ex_is_load, mem1_is_load;
+    wire ex_is_csr,  mem1_is_csr;
     assign ex_is_load = ex_load_buffer;
     assign ex_is_csr = ex_csr_buffer;
+    assign mem1_is_load = mem1_load_buffer;
+    assign mem1_is_csr = mem1_csr_buffer;
     wire stallreq_load;
     wire stallreq_csr;
-    assign stallreq_load = ex_is_load & ex_rf_we & ((ex_rf_waddr==rs1 & rs1!=0)|(ex_rf_waddr==rs2 & rs2!=0));
-    assign stallreq_csr  = ex_is_csr  & ex_rf_we & ((ex_rf_waddr==rs1 & rs1!=0)|(ex_rf_waddr==rs2 & rs2!=0));
+    assign stallreq_load = ex_is_load & ex_rf_we & ((ex_rf_waddr==rs1 & rs1!=0)|(ex_rf_waddr==rs2 & rs2!=0))
+                        | mem1_is_load & mem1_rf_we & ((mem1_rf_waddr == rs1 & rs1!=0) | (mem1_rf_waddr == rs2 & rs2!=0));
+    assign stallreq_csr  = ex_is_csr  & ex_rf_we & ((ex_rf_waddr==rs1 & rs1!=0)|(ex_rf_waddr==rs2 & rs2!=0))
+                        | mem1_is_csr & mem1_rf_we & ((mem1_rf_waddr == rs1 & rs1!=0) | (mem1_rf_waddr == rs2 & rs2!=0)); 
     assign stallreq_id = stallreq_load | stallreq_csr;
     
 endmodule

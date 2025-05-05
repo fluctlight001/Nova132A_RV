@@ -1,4 +1,4 @@
-`define StallBus 6
+`include "define.vh"
 module ctrl(
     input wire rst_n,
     input wire stallreq_id,

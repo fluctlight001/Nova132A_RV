@@ -1,4 +1,4 @@
-`include "define.h"
+`include "define.vh"
 module mycpu_top(
     input  wire clk,
     input  wire rst_n,

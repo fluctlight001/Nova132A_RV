@@ -18,6 +18,6 @@ module regfile(
         end
     end
 
-    assign rdata1 = ~(|rs1) ? 32'b0 : we & (rs1 == waddr) ? wdata : rf[rs1];
-    assign rdata2 = ~(|rs2) ? 32'b0 : we & (rs2 == waddr) ? wdata : rf[rs2];
+    assign rdata1 = ~(|rs1) ? 32'b0 : rf[rs1];
+    assign rdata2 = ~(|rs2) ? 32'b0 : rf[rs2];
 endmodule

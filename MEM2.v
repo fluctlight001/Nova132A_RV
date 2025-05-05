@@ -2,7 +2,7 @@
 module MEM2 (
     input  wire clk,
     input  wire rst_n,
-    input  wire [5:0] stall,
+    input  wire [`StallBus-1:0] stall,
 
     input  wire [`MEM12MEM2_WD-1:0] mem12mem2_bus,
     output wire [`MEM22WB_WD  -1:0] mem22wb_bus,
@@ -48,7 +48,8 @@ module MEM2 (
         rf_waddr,
         ex_result,
         pc,
-        inst
+        inst,
+        rdata
     } = mem12mem2_bus_r;
 
     wire        data_ram_en;

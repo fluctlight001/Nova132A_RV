@@ -2,7 +2,8 @@
 module EX (
     input wire clk,
     input wire rst_n,
-    input wire [5:0] stall,
+    input  wire [`StallBus-1:0] stall,
+
     output wire stallreq_ex,
 
     input  wire [`ID2EX_WD  -1:0] id2ex_bus,
@@ -41,7 +42,7 @@ module EX (
     wire rf_we;
     wire [4:0] rf_waddr;
     wire [31:0] pc,inst;
-    wire [31:0] rdata1, rdata2;
+    // wire [31:0] rdata1, rdata2;
 
     // wire [3:0] csr_op;
     // wire [11:0] csr_addr;
@@ -127,7 +128,7 @@ module EX (
                         : alu_result;
     // assign csr_wdata = csr_wdata_sel ? imm : src1;
     
-    assign ex2mem_bus = {
+    assign ex2mem1_bus = {
         // csr_vec,
         // csr_op,
         // csr_addr,

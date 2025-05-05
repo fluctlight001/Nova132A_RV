@@ -2,7 +2,7 @@
 module WB (
     input  wire clk,
     input  wire rst_n,
-    input  wire [5:0] stall,
+    input  wire [`StallBus-1:0] stall,
 
     input  wire [`MEM22WB_WD-1:0] mem22wb_bus,
     output wire [`BYPASS_WD -1:0] wb2rf_bus,
