@@ -93,6 +93,7 @@ module ID (
 
     regfile u_regfile(
         .clk    (clk    ),
+        .rst_n  (rst_n  ),
         .rs1    (rs1    ),
         .rs2    (rs2    ),
         .rdata1 (rdata1 ),
@@ -146,11 +147,11 @@ module ID (
             ex_load_buffer <= 1'b0;
             ex_csr_buffer <= 1'b0;
         end
-        else if (stall[2]&(!stall[3]) | br_e) begin
+        else if (stall[3]&(!stall[4]) | br_e) begin
             ex_load_buffer <= 1'b0;
             ex_csr_buffer <= 1'b0;
         end
-        else if (!stall[2]) begin
+        else if (!stall[3]) begin
             ex_load_buffer <= sel_rf_res[1];
             ex_csr_buffer <= sel_rf_res[2];
         end
@@ -161,11 +162,11 @@ module ID (
             mem1_load_buffer <= 1'b0;
             mem1_csr_buffer <= 1'b0;
         end
-        else if (stall[3]&(!stall[4]) | br_e) begin
+        else if (stall[4]&(!stall[5]) | br_e) begin
             mem1_load_buffer <= 1'b0;
             mem1_csr_buffer <= 1'b0;
         end
-        else if (!stall[3]) begin
+        else if (!stall[4]) begin
             mem1_load_buffer <= ex_load_buffer;
             mem1_csr_buffer <= ex_csr_buffer;
         end
@@ -183,6 +184,6 @@ module ID (
                         | mem1_is_load & mem1_rf_we & ((mem1_rf_waddr == rs1 & rs1!=0) | (mem1_rf_waddr == rs2 & rs2!=0));
     assign stallreq_csr  = ex_is_csr  & ex_rf_we & ((ex_rf_waddr==rs1 & rs1!=0)|(ex_rf_waddr==rs2 & rs2!=0))
                         | mem1_is_csr & mem1_rf_we & ((mem1_rf_waddr == rs1 & rs1!=0) | (mem1_rf_waddr == rs2 & rs2!=0)); 
-    assign stallreq_id = stallreq_load | stallreq_csr;
+    assign stallreq_id = br_e ? 0 : stallreq_load | stallreq_csr;
     
 endmodule

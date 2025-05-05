@@ -256,7 +256,8 @@ module decoder_im (
 
     // imm to src2
     assign sel_src2 =   inst_lui | inst_auipc | inst_lb | inst_lh | inst_lw | inst_lbu | inst_lhu |
-                        inst_sb | inst_sh | inst_sw | inst_addi | inst_slti | inst_sltiu | inst_xori | 
+                        // inst_sb | inst_sh | inst_sw | 
+                        inst_addi | inst_slti | inst_sltiu | inst_xori | 
                         inst_ori | inst_andi | inst_slli | inst_srli | inst_srai;
     // rs2 to src2
     // assign sel_src2[1] =
