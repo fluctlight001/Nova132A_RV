@@ -39,11 +39,11 @@ module ID (
     wire [ 1:0] sel_src1;
     wire        sel_src2;
     wire [31:0] imm;
-    wire [ 9:0] alu_op;
-    wire [ 7:0] bru_op;
-    wire [ 5:0] lsu_op;
-    wire [ 3:0] mul_op;
-    wire [ 2:0] div_op;
+    wire [`ALU_WD-1:0] alu_op;
+    wire [`BRU_WD-1:0] bru_op;
+    wire [`LSU_WD-1:0] lsu_op;
+    wire [`MUL_WD-1:0] mul_op;
+    wire [`DIV_WD-1:0] div_op;
     wire [ 3:0] sel_rf_res;
     wire        rf_we;
     wire [ 4:0] rf_waddr;
@@ -102,20 +102,29 @@ module ID (
         .wdata  (wb_rf_wdata  )
     );
 
-    
+    wire [31:0] src1, src2;
+    assign src1 = ex_rf_we   & (ex_rf_waddr == rs1)   & (|rs1) ? ex_rf_wdata
+                : mem1_rf_we & (mem1_rf_waddr == rs1) & (|rs1) ? mem1_rf_wdata
+                : mem2_rf_we & (mem2_rf_waddr == rs1) & (|rs1) ? mem2_rf_wdata
+                : wb_rf_we   & (wb_rf_waddr == rs1)   & (|rs1) ? wb_rf_wdata
+                : sel_src1[0] ? pc
+                : sel_src1[1] ? 0
+                : rdata1;
+    assign src2 = ex_rf_we   & (ex_rf_waddr == rs2)   & (|rs2) ? ex_rf_wdata
+                : mem1_rf_we & (mem1_rf_waddr == rs2) & (|rs2) ? mem1_rf_wdata
+                : mem2_rf_we & (mem2_rf_waddr == rs2) & (|rs2) ? mem2_rf_wdata
+                : wb_rf_we   & (wb_rf_waddr == rs2)   & (|rs2) ? wb_rf_wdata
+                : sel_src2 ? imm
+                : rdata2;
 
-    assign csr_vec = {32'b0, csr_vec_l};
+    // assign csr_vec = {32'b0, csr_vec_l};
     assign id2ex_bus = {
-        csr_vec,
-        csr_op,
-        csr_addr,
-        csr_wdata_sel,
-        sel_src1,
-        sel_src2,
-        rs1,
-        rs2,
-        rdata1,
-        rdata2,
+        // csr_vec,
+        // csr_op,
+        // csr_addr,
+        // csr_wdata_sel,
+        src1,
+        src2,
         imm,
         alu_op,
         bru_op,

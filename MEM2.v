@@ -6,9 +6,7 @@ module MEM2 (
 
     input  wire [`MEM12MEM2_WD-1:0] mem12mem2_bus,
     output wire [`MEM22WB_WD  -1:0] mem22wb_bus,
-    output wire [`BYPASS_WD   -1:0] mem22rf_bus,
-
-    input  wire [31:0] data_sram_rdata
+    output wire [`BYPASS_WD   -1:0] mem22rf_bus
 );
     reg [`MEM12MEM2_WD-1:0] mem12mem2_bus_r;
     always @ (posedge clk) begin

@@ -142,5 +142,11 @@ module EX (
         inst
     };
 
+    assign ex2rf_bus = {
+        rf_we,
+        rf_waddr,
+        ex_result
+    };
+
     assign stallreq_ex = stallreq_for_m;
 endmodule
